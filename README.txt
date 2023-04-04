@@ -2,8 +2,11 @@ Group Members: Tarik Maljanović, Melisa Geca
 
 List of files within this submission:
   1. file.txt
-  2. output.txt
-  3. 
+  2. shell (executable)
+  3. Shell.c
+  4. task3_basic.c
+  5. task3_intermediate.c
+  6. task3_additionally.c
 
 Q1: If we have a single-core, uniprocessor system that supports multiprogramming, how many
 processes can be in a running state in such a system, at any given time?
@@ -39,17 +42,16 @@ threads to avoid race conditions and ensure consistency. These synchronization p
 calls like pthread_mutex_init() and pthread_cond_wait().
 
 An outline of what we did for the assignment:
-??For this assignment, we implemented a simple shell program which can perform a few simple commands, and interact with files.
-During our assignment we conducted reasearch about how to implement a shell, about the commands we were assigned to implement,
-and went through many versions of our project, until we perfected it. We also implemented the fork(), wait(), exec(), clone() and execle(), 
-which also helped us to understand these commands better and the way proccesses are created. And additionally, we implemented and reasearched the
-forkbomb, which we (of course) didn't execute but do understand how it works.
+For this assignment we implemented a simple shell program using tokens (so the user can enter the command, additional flags, paths etc. in a single line),
+and it also supports piping, so when you run a command (wc for exmaple), a child process is created and it will be transformed into the called program (execvp)
+and its output will be written in the standard output of the parent process. The parent process will wait for the child process, output the result, and the user is
+prompted again. Beside the shell implementation, we worked with system calls (fork(), wait(), exec(), execle(), clone()) and created some simple C programs which
+feature these system calls. And additionally, we researched "forkbomb", what it means, why it exists, and why its used. The code is very simple but dangerous.
 
 Instructions for compiling:
-??The executables for the shell and the commands (wc, grep, df, cmatrix) are included within the .zip file, so the user doesn't need to compile
-anything for the shell to be working. The user just needs to be in the same directory in terminal as the executables, and (of course), the executables
-must be all at the same location. In the terminal, just type in './shell' and the shell program is runned and ready for use.
-If the user wishes to execute the additional taks 3 programs, they need to compile the C files, and then run them (gcc -o <NAME> <FILE NAME>.c -Wall).
+Once the user unzips the project folder, they only need to enter in their terminal the command './shell' to run the shell program (no additional compiling needed,
+unless they whish to make some changes to the shell within the Shell.c file). If the user wishes to run the task 3 programs, they will nee to compile them
+(gcc -o <SOME NAME> <FILE NAME>.c -Wall) and then run it as usual (./<ENTERED NAME>).
 
 Any sources/tutorials you have used to complete the assignment:
 The sources we used for this assigned are: man pages, google (googling commands not featured in Mac OS man pages and implementations of the assigned commands),
@@ -57,5 +59,5 @@ ChatGPT
 
 Any challenges you encountered along the way:
 This assigned was challaning in a way that made us go into details for each implementation. The basics such as: prompt and shell colours didn't impose a challange
-such as the implementation of the assigned commands and system calls, since it required us to actually reasearch and understand the commands/ system calls.
+such as the implementation of piping, tokens, and system calls, since it required us to actually reasearch and understand the commands, system calls, and C functions.
 

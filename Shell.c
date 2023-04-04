@@ -103,7 +103,7 @@ int main() {
         close(fd[0]); // close unused read end of pipe
         close(fd[1]); // close original write end of pipe
         execvp(arguments[0], arguments); // execute ls command
-        perror("execlp"); // this line only runs if execvp fails
+        perror(BOLDRED"Shelly fail: \033[0m execlp"); // this line only runs if execvp fails
         exit(1);
       } else if (pid > 0) {
         // parent process - read output of child process from pipe
@@ -115,8 +115,9 @@ int main() {
         }
         close(fd[0]); // close read end of pipe
         waitpid(pid, NULL, 0); // wait for child process to finish
+        printf("\n");
       } else {  // Error forking
-        perror("fork");
+        perror(BOLDRED"Shelly fail: \033[0m fork");
         exit(1);
       }
 
