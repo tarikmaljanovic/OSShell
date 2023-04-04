@@ -34,13 +34,14 @@ int main() {
   char hostName[100]; //Host name is stored here
   char *login = getlogin(); //Login name is stored and called here
   gethostname(hostName, 100); //Function for getting the host name of the machine
+  int fd[2];
+  pipe(fd);
 
   
   while (1) {
     printf(RED"%s@%s\033[0m"BOLDGREEN":~$ \033[0m", hostName, login);
     fgets(input, MAX_COMMAND_LENGTH, stdin);
     input[strlen(input) - 1] = '\0';  // Remove newline character
-    int status;
 
     if(strcmp(input, "") == 0) {
       continue;
@@ -98,15 +99,27 @@ int main() {
     } else {
       pid_t pid = fork();
       if (pid == 0) {  // Child process
-        execvp(arguments[0], arguments);
-        perror("execvp");  // This line only executes if execvp fails
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[0]); // close unused read end of pipe
+        close(fd[1]); // close original write end of pipe
+        execvp(arguments[0], arguments); // execute ls command
+        perror("execlp"); // this line only runs if execvp fails
         exit(1);
-      } else if (pid > 0) {  // Parent process
-        waitpid(pid, &status, 0);
+      } else if (pid > 0) {
+        // parent process - read output of child process from pipe
+        char buf[1024];
+        ssize_t n;
+        close(fd[1]); // close write end of pipe
+        while ((n = read(fd[0], buf, sizeof(buf))) > 0) {
+          write(STDOUT_FILENO, buf, n); // write output to stdout
+        }
+        close(fd[0]); // close read end of pipe
+        waitpid(pid, NULL, 0); // wait for child process to finish
       } else {  // Error forking
         perror("fork");
         exit(1);
       }
+
     }
     
   }

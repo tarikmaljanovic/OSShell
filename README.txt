@@ -1,21 +1,9 @@
 Group Members: Tarik Maljanović, Melisa Geca
 
 List of files within this submission:
-  1. file.txt file used for testing certain commands (wc, grep)
-  2. output.txt file used to store the output of certain commands
-  3. Shell.c
-  4. shell executable of the Shell.c file
-  5. wc.c file containing the C code implementation of the 'wc' command
-  6. wc executable of the wc.c file
-  7. grep.c file containing the C code implementation of the 'grep' command
-  8. grep executable of the grep.c file
-  9. df.c file containing the C code implementation of the 'df' command
-  10. df executable of the df.c file
-  11. cmatrix.c file containing the C code implementation of the 'cmatrix' command
-  12. cmatrix executable of the cmatrix.c file
-  13. task3_basic.c file containing the code for Task 3 (Basic: fork(), wait(), exec())
-  14. task3_intermediate.c file containing the code for Task 3 (Intermediate: clone(), execle())
-  15. task3_additionally.c file containing the code for Task 3 (Additionally: forkbomb)
+  1. file.txt
+  2. output.txt
+  3. 
 
 Q1: If we have a single-core, uniprocessor system that supports multiprogramming, how many
 processes can be in a running state in such a system, at any given time?
@@ -51,14 +39,14 @@ threads to avoid race conditions and ensure consistency. These synchronization p
 calls like pthread_mutex_init() and pthread_cond_wait().
 
 An outline of what we did for the assignment:
-For this assignment, we implemented a simple shell program which can perform a few simple commands, and interact with files.
+??For this assignment, we implemented a simple shell program which can perform a few simple commands, and interact with files.
 During our assignment we conducted reasearch about how to implement a shell, about the commands we were assigned to implement,
 and went through many versions of our project, until we perfected it. We also implemented the fork(), wait(), exec(), clone() and execle(), 
 which also helped us to understand these commands better and the way proccesses are created. And additionally, we implemented and reasearched the
 forkbomb, which we (of course) didn't execute but do understand how it works.
 
 Instructions for compiling:
-The executables for the shell and the commands (wc, grep, df, cmatrix) are included within the .zip file, so the user doesn't need to compile
+??The executables for the shell and the commands (wc, grep, df, cmatrix) are included within the .zip file, so the user doesn't need to compile
 anything for the shell to be working. The user just needs to be in the same directory in terminal as the executables, and (of course), the executables
 must be all at the same location. In the terminal, just type in './shell' and the shell program is runned and ready for use.
 If the user wishes to execute the additional taks 3 programs, they need to compile the C files, and then run them (gcc -o <NAME> <FILE NAME>.c -Wall).
