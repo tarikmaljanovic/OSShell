@@ -25,85 +25,89 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
-//Recursice promp function
-void prompt() {
-  char input[100]; //User input is stored here
-  char *arguments[100];
+#define MAX_COMMAND_LENGTH 100
+#define MAX_NUM_ARGUMENTS 10
+
+int main() {
+  char input[MAX_COMMAND_LENGTH]; //User input is stored here
+  char *arguments[MAX_NUM_ARGUMENTS];
   char hostName[100]; //Host name is stored here
   char *login = getlogin(); //Login name is stored and called here
   gethostname(hostName, 100); //Function for getting the host name of the machine
+
   
+  while (1) {
+    printf(RED"%s@%s\033[0m"BOLDGREEN":~$ \033[0m", hostName, login);
+    fgets(input, MAX_COMMAND_LENGTH, stdin);
+    input[strlen(input) - 1] = '\0';  // Remove newline character
+    int status;
 
-  printf(RED"%s@%s\033[0m"BOLDGREEN":~$\033[0m ", hostName, login);  //The prompt which looks like this "machineName@userName:~$""
-  fgets(input, 100, stdin);
-
-  input[strlen(input) - 1] = '\0';
-  char *token = strtok(input, " ");
+    if(strcmp(input, "") == 0) {
+      continue;
+    }
+    // Tokenize the command string by spaces
+    char *token = strtok(input, " ");
     int i = 0;
-    while (token != NULL && i < 100) {
+    while (token != NULL && i < MAX_NUM_ARGUMENTS) {
       arguments[i] = token;
       token = strtok(NULL, " ");
       i++;
     }
-    arguments[i] = NULL;
+    arguments[i] = NULL;  // Set the last argument to NULL for execvp
 
     if(strcmp(arguments[0], "quit") == 0) {
       printf(BOLDBLUE"Goodbye ( ´ ▽ ` )ﾉ\033[0m\n");
-      return;
+      break;
     } else if(strcmp(arguments[0], "name") == 0) {
       printf("Shell Name: "BOLDBLUE"Shelly v1.0.0\033[0m\n");
-    } else if(strcmp(arguments[0], "manual") == 0) {
-      //A simple man page of this shell, which explaines each available command
-    printf(BOLDBLUE"Shell Man Page\033[0m\n");
-    printf("\n");
-    printf("Shell Name: "BOLDBLUE"Shelly v1.0.0\033[0m\n");
-    printf("\n");
-    printf(BOLDGREEN"**************************\033[0m\n");
-    printf(RED"machineName@hostName\033[0m"BOLDGREEN":~$ \033[0m"BOLDWHITE"<Command Name> \033[0m"BOLDWHITE"<Flag>\033[0m\n");
-    printf("\n");
+      continue;
+    } else if(strcmp(arguments[0], "manuel") == 0) {
+      printf(BOLDBLUE"Shell Man Page\033[0m\n");
+      printf("\n");
+      printf("Shell Name: "BOLDBLUE"Shelly v1.0.0\033[0m\n");
+      printf("\n");
+      printf(BOLDGREEN"**************************\033[0m\n");
+      printf(RED"machineName@hostName\033[0m"BOLDGREEN":~$ \033[0m"BOLDWHITE"<Command Name> \033[0m"BOLDWHITE"<Flag>\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"grep ~File pattern searcher \033[0m\n");
-    printf(BOLDBLUE"-v ~Selected lines are those not matching any of the specified patterns.\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"grep ~File pattern searcher \033[0m\n");
+      printf(BOLDBLUE"-v ~Selected lines are those not matching any of the specified patterns.\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"wc ~Word count \033[0m\n");
-    printf(BOLDBLUE"-l ~Include number of lines\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"wc ~Word count \033[0m\n");
+      printf(BOLDBLUE"-l ~Include number of lines\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"df ~Display free disk space \033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"df ~Display free disk space \033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"cmatrix ~Shows a scrolling 'Matrix' like screen in Linux\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"cmatrix ~Shows a scrolling 'Matrix' like screen in Linux\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"name ~Get shell name and version\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"name ~Get shell name and version\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"quit ~Exit the shell\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"quit ~Exit the shell\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"clear ~Clear the screen\033[0m\n");
-    printf("\n");
+      printf(BOLDBLUE"clear ~Clear the screen\033[0m\n");
+      printf("\n");
 
-    printf(BOLDBLUE"man ~Get manual page of the shell\033[0m\n");
-    printf(BOLDGREEN"**************************\033[0m\n");
+      printf(BOLDBLUE"man ~Get manual page of the shell\033[0m\n");
+      printf(BOLDGREEN"**************************\033[0m\n");
     } else {
-      int rc = fork();
-
-      if(rc == 0) {
+      pid_t pid = fork();
+      if (pid == 0) {  // Child process
         execvp(arguments[0], arguments);
-      } else if(rc > 0) {
-        wait(NULL);
-      } else if (rc < 0) {
-        perror("Failed to fork\n");
+        perror("execvp");  // This line only executes if execvp fails
+        exit(1);
+      } else if (pid > 0) {  // Parent process
+        waitpid(pid, &status, 0);
+      } else {  // Error forking
+        perror("fork");
         exit(1);
       }
     }
-  prompt();
-}
-
-int main() {
-  prompt();
-
-  return 0;
+    
+  }
 }
