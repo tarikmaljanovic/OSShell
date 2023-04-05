@@ -6,6 +6,7 @@
 #include <sys/uio.h>
 #include <stdlib.h>
 #include <sys/statvfs.h>
+#include <sys/wait.h>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
