@@ -32,11 +32,11 @@
 int main() {
   char input[MAX_COMMAND_LENGTH]; //User input is stored here
   char *arguments[MAX_NUM_ARGUMENTS];
+  char *commands1[MAX_NUM_ARGUMENTS];
+  char *commands2[MAX_NUM_ARGUMENTS];
   char hostName[100]; //Host name is stored here
   char *login = getlogin(); //Login name is stored and called here
   gethostname(hostName, 100); //Function for getting the host name of the machine
-  int fd[2];
-  pipe(fd);
 
   
   while (1) {
@@ -50,12 +50,49 @@ int main() {
     // Tokenize the command string by spaces
     char *token = strtok(input, " ");
     int i = 0;
-    while (token != NULL && i < MAX_NUM_ARGUMENTS) {
+    while(token != NULL && i < MAX_NUM_ARGUMENTS) {
       arguments[i] = token;
       token = strtok(NULL, " ");
       i++;
     }
+
+    int x = 0;
+    int check1 = 0;
+    while(arguments[x] != NULL) {
+      if(strcmp(arguments[x], "|") == 0) {
+        check1 = 1;
+        break;
+      }
+      x++;
+    }
+
+    if(check1) {
+      int j = 0;
+      int n = 0;
+      while(strcmp(arguments[j], "|")) {
+        commands1[n] = arguments[j];
+        n++;
+        j++;
+      }
+
+      int k = 0;
+      int m = 0;
+      int check = 0;
+      while(arguments[k] != NULL) {
+        if(strcmp(arguments[k], "|") == 0) {
+          check = 1;
+        } else if(check) {
+          commands2[m] = arguments[k];
+          m++;
+        }
+        k++;
+      }
+      commands1[n] = NULL;
+      commands2[m] = NULL;
+    }
+
     arguments[i] = NULL;  // Set the last argument to NULL for execvp
+
 
     if(strcmp(arguments[0], "quit") == 0) {
       printf(BOLDBLUE"Goodbye ( ´ ▽ ` )ﾉ\033[0m\n");
@@ -97,7 +134,81 @@ int main() {
 
       printf(BOLDBLUE"man ~Get manual page of the shell\033[0m\n");
       printf(BOLDGREEN"**************************\033[0m\n");
+    } else if(check1) {
+      int pipefd[2];
+      pid_t pid1, pid2;
+
+      if (pipe(pipefd) == -1) {
+          perror("pipe");
+          exit(EXIT_FAILURE);
+      }
+
+      pid1 = fork();
+
+      if (pid1 == -1) {
+          perror("fork");
+          exit(EXIT_FAILURE);
+      }
+      else if (pid1 == 0) {
+          // Child process 1
+
+          // Close the reading end of the pipe
+          close(pipefd[0]);
+
+          // Redirect the standard output to the writing end of the pipe
+          if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+              perror("dup2");
+              exit(EXIT_FAILURE);
+          }
+
+          // Execute the first command
+          if (execvp(commands1[0], commands1) == -1) {
+              perror("execvp");
+              exit(EXIT_FAILURE);
+          }
+      }
+      else {
+          // Parent process
+
+          pid2 = fork();
+
+          if (pid2 == -1) {
+              perror("fork");
+              exit(EXIT_FAILURE);
+          }
+          else if (pid2 == 0) {
+              // Child process 2
+
+              // Close the writing end of the pipe
+              close(pipefd[1]);
+
+              // Redirect the standard input to the reading end of the pipe
+              if (dup2(pipefd[0], STDIN_FILENO) == -1) {
+                  perror("dup2");
+                  exit(EXIT_FAILURE);
+              }
+
+              // Execute the second command
+              if (execvp(commands2[0], commands2) == -1) {
+                  perror("execvp");
+                  exit(EXIT_FAILURE);
+              }
+          }
+          else {
+              // Parent process
+
+              // Close both ends of the pipe
+              close(pipefd[0]);
+              close(pipefd[1]);
+
+              // Wait for both child processes to finish
+              waitpid(pid1, NULL, 0);
+              waitpid(pid2, NULL, 0);
+          }
+      }
     } else {
+      int fd[2];
+      pipe(fd);
       pid_t pid = fork();
       if (pid == 0) {  // Child process
         dup2(fd[1], STDOUT_FILENO);
@@ -121,8 +232,6 @@ int main() {
         perror(BOLDRED"Shelly fail: \033[0m fork");
         exit(1);
       }
-
     }
-    
   }
 }
