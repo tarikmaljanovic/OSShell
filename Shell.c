@@ -56,6 +56,8 @@ int main() {
       i++;
     }
 
+    arguments[i] = NULL;  // Set the last argument to NULL for execvp
+    
     int x = 0;
     int check1 = 0;
     while(arguments[x] != NULL) {
@@ -90,8 +92,6 @@ int main() {
       commands1[n] = NULL;
       commands2[m] = NULL;
     }
-
-    arguments[i] = NULL;  // Set the last argument to NULL for execvp
 
 
     if(strcmp(arguments[0], "quit") == 0) {
